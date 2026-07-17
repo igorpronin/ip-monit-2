@@ -30,6 +30,13 @@ final class IPMonitor: ObservableObject {
     @Published var alignRight: Bool {
         didSet { UserDefaults.standard.set(alignRight, forKey: "AlignRight") }
     }
+    @Published var indicatorEnabled: Bool {
+        didSet { UserDefaults.standard.set(indicatorEnabled, forKey: "IndicatorEnabled") }
+    }
+    /// Правила индикатора: код страны → имя цвета из IndicatorPalette.
+    @Published var indicatorRules: [String: String] {
+        didSet { UserDefaults.standard.set(indicatorRules, forKey: "IndicatorRules") }
+    }
 
     private var session: URLSession
     private var timer: Timer?
@@ -53,6 +60,8 @@ final class IPMonitor: ObservableObject {
         geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
         compact = UserDefaults.standard.bool(forKey: "CompactWindow")
         alignRight = UserDefaults.standard.bool(forKey: "AlignRight")
+        indicatorEnabled = UserDefaults.standard.bool(forKey: "IndicatorEnabled")
+        indicatorRules = UserDefaults.standard.dictionary(forKey: "IndicatorRules") as? [String: String] ?? [:]
         session = Self.makeSession()
         lastSessionReset = Date()
     }

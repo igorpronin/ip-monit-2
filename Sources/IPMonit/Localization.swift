@@ -8,6 +8,7 @@ enum L10nKey: String {
     case geoModeMenu, geoModeVirtual, geoModePhysical
     case compactWindow
     case alignMenu, alignLeft, alignRight
+    case indicatorStrip, configureIndicator, resetIndicatorPosition, add
 }
 
 @MainActor
@@ -67,6 +68,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Alignment",
             .alignLeft: "Left",
             .alignRight: "Right",
+            .indicatorStrip: "Indicator",
+            .configureIndicator: "Configure indicator…",
+            .resetIndicatorPosition: "Reset indicator position",
+            .add: "Add",
         ],
         "ru": [
             .detecting: "Определяю…",
@@ -90,6 +95,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Выравнивание",
             .alignLeft: "Слева",
             .alignRight: "Справа",
+            .indicatorStrip: "Индикатор",
+            .configureIndicator: "Настроить индикатор…",
+            .resetIndicatorPosition: "Вернуть индикатор на место",
+            .add: "Добавить",
         ],
         "es": [
             .detecting: "Detectando…",
@@ -113,6 +122,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Alineación",
             .alignLeft: "Izquierda",
             .alignRight: "Derecha",
+            .indicatorStrip: "Indicador",
+            .configureIndicator: "Configurar indicador…",
+            .resetIndicatorPosition: "Restablecer posición del indicador",
+            .add: "Añadir",
         ],
         "de": [
             .detecting: "Ermittle…",
@@ -136,6 +149,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Ausrichtung",
             .alignLeft: "Links",
             .alignRight: "Rechts",
+            .indicatorStrip: "Indikator",
+            .configureIndicator: "Indikator konfigurieren…",
+            .resetIndicatorPosition: "Indikatorposition zurücksetzen",
+            .add: "Hinzufügen",
         ],
         "fr": [
             .detecting: "Détection…",
@@ -159,6 +176,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Alignement",
             .alignLeft: "Gauche",
             .alignRight: "Droite",
+            .indicatorStrip: "Indicateur",
+            .configureIndicator: "Configurer l'indicateur…",
+            .resetIndicatorPosition: "Réinitialiser la position de l'indicateur",
+            .add: "Ajouter",
         ],
         "it": [
             .detecting: "Rilevamento…",
@@ -182,6 +203,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Allineamento",
             .alignLeft: "Sinistra",
             .alignRight: "Destra",
+            .indicatorStrip: "Indicatore",
+            .configureIndicator: "Configura indicatore…",
+            .resetIndicatorPosition: "Ripristina posizione dell'indicatore",
+            .add: "Aggiungi",
         ],
         "pt": [
             .detecting: "Detectando…",
@@ -205,6 +230,10 @@ final class L10n: ObservableObject {
             .alignMenu: "Alinhamento",
             .alignLeft: "Esquerda",
             .alignRight: "Direita",
+            .indicatorStrip: "Indicador",
+            .configureIndicator: "Configurar indicador…",
+            .resetIndicatorPosition: "Redefinir posição do indicador",
+            .add: "Adicionar",
         ],
         "zh": [
             .detecting: "正在检测…",
@@ -228,6 +257,10 @@ final class L10n: ObservableObject {
             .alignMenu: "对齐",
             .alignLeft: "左",
             .alignRight: "右",
+            .indicatorStrip: "指示器",
+            .configureIndicator: "配置指示条…",
+            .resetIndicatorPosition: "恢复指示条位置",
+            .add: "添加",
         ],
         "ja": [
             .detecting: "検出中…",
@@ -251,6 +284,10 @@ final class L10n: ObservableObject {
             .alignMenu: "配置",
             .alignLeft: "左",
             .alignRight: "右",
+            .indicatorStrip: "インジケーター",
+            .configureIndicator: "インジケーターを設定…",
+            .resetIndicatorPosition: "インジケーターの位置をリセット",
+            .add: "追加",
         ],
         "ko": [
             .detecting: "확인 중…",
@@ -274,6 +311,10 @@ final class L10n: ObservableObject {
             .alignMenu: "정렬",
             .alignLeft: "왼쪽",
             .alignRight: "오른쪽",
+            .indicatorStrip: "인디케이터",
+            .configureIndicator: "인디케이터 설정…",
+            .resetIndicatorPosition: "인디케이터 위치 재설정",
+            .add: "추가",
         ],
     ]
 }

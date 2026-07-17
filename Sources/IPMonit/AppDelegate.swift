@@ -32,7 +32,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var compactMenuItem: NSMenuItem!
     private var alignLeftMenuItem: NSMenuItem!
     private var alignRightMenuItem: NSMenuItem!
+    private var indicatorMenuItem: NSMenuItem!
     private var loginMenuItem: NSMenuItem!
+    private var indicatorPanel: FloatingPanel!
+    private var settingsWindow: NSWindow?
     private var lastPanelFrame: NSRect = .zero
     private var ip4MenuItem: NSMenuItem!
     private var ip6MenuItem: NSMenuItem!
@@ -48,6 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupPanel()
+        setupIndicator()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "🏳️"
         rebuildMenu()
@@ -80,7 +84,82 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if panelVisible {
             panel.orderFrontRegardless()
         }
+        if monitor.indicatorEnabled {
+            indicatorPanel.orderFrontRegardless()
+        }
         monitor.start()
+    }
+
+    // MARK: - Индикатор-полоска
+
+    private func setupIndicator() {
+        let panel = FloatingPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 176, height: 17),
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.level = .statusBar
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+        panel.isMovableByWindowBackground = true
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        panel.hidesOnDeactivate = false
+        panel.isReleasedWhenClosed = false
+        panel.animationBehavior = .none
+
+        let host = NSHostingController(rootView: IndicatorView(monitor: monitor))
+        host.sizingOptions = [.preferredContentSize]
+        panel.contentViewController = host
+        panel.setContentSize(host.view.fittingSize)
+
+        if !panel.setFrameUsingName("IPMonitIndicator") {
+            panel.setFrameOrigin(Self.defaultIndicatorOrigin(for: panel))
+        }
+        panel.setFrameAutosaveName("IPMonitIndicator")
+        panel.onDoubleClick = { [weak self] in self?.showMenu(under: self?.indicatorPanel) }
+
+        indicatorPanel = panel
+    }
+
+    // По умолчанию полоска по центру у верхнего края, верхние 40% — за пределами экрана.
+    private static func defaultIndicatorOrigin(for panel: NSPanel) -> NSPoint {
+        guard let screen = NSScreen.main else { return panel.frame.origin }
+        let f = screen.frame
+        return NSPoint(x: f.midX - panel.frame.width / 2, y: f.maxY - panel.frame.height * 0.6)
+    }
+
+    @objc private func resetIndicatorPosition() {
+        indicatorPanel.setFrameOrigin(Self.defaultIndicatorOrigin(for: indicatorPanel))
+    }
+
+    func setIndicatorVisible(_ visible: Bool) {
+        monitor.indicatorEnabled = visible
+        if visible {
+            indicatorPanel.orderFrontRegardless()
+        } else {
+            indicatorPanel.orderOut(nil)
+        }
+        indicatorMenuItem?.state = visible ? .on : .off
+    }
+
+    @objc private func toggleIndicator() {
+        setIndicatorVisible(!monitor.indicatorEnabled)
+    }
+
+    @objc private func openIndicatorSettings() {
+        if settingsWindow == nil {
+            let host = NSHostingController(rootView: IndicatorSettingsView(monitor: monitor))
+            let window = NSWindow(contentViewController: host)
+            window.title = "IPMonit"
+            window.styleMask = [.titled, .closable]
+            window.isReleasedWhenClosed = false
+            window.center()
+            settingsWindow = window
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
     // MARK: - Плавающее окошко
@@ -125,7 +204,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Показывает меню приложения под окошком (дубль меню из трея).
     func showMenuFromWindow() {
-        guard let view = panel.contentView, let menu = statusItem?.menu else { return }
+        showMenu(under: panel)
+    }
+
+    private func showMenu(under window: NSWindow?) {
+        guard let view = window?.contentView, let menu = statusItem?.menu else { return }
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: view)
     }
 
@@ -222,6 +305,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alignMenu.addItem(alignRightMenuItem)
         alignItem.submenu = alignMenu
         menu.addItem(alignItem)
+
+        indicatorMenuItem = NSMenuItem(title: l10n.t(.indicatorStrip), action: #selector(toggleIndicator), keyEquivalent: "")
+        indicatorMenuItem.target = self
+        indicatorMenuItem.state = monitor.indicatorEnabled ? .on : .off
+        menu.addItem(indicatorMenuItem)
+
+        let configureIndicatorItem = NSMenuItem(title: l10n.t(.configureIndicator), action: #selector(openIndicatorSettings), keyEquivalent: "")
+        configureIndicatorItem.target = self
+        menu.addItem(configureIndicatorItem)
+
+        let resetIndicatorItem = NSMenuItem(title: l10n.t(.resetIndicatorPosition), action: #selector(resetIndicatorPosition), keyEquivalent: "")
+        resetIndicatorItem.target = self
+        menu.addItem(resetIndicatorItem)
 
         loginMenuItem = NSMenuItem(title: l10n.t(.launchAtLogin), action: #selector(toggleLoginItem), keyEquivalent: "")
         loginMenuItem.target = self
@@ -387,5 +483,6 @@ extension AppDelegate: NSMenuDelegate {
         compactMenuItem?.state = monitor.compact ? .on : .off
         alignLeftMenuItem?.state = monitor.alignRight ? .off : .on
         alignRightMenuItem?.state = monitor.alignRight ? .on : .off
+        indicatorMenuItem?.state = monitor.indicatorEnabled ? .on : .off
     }
 }
