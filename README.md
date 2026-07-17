@@ -45,6 +45,16 @@ IPMonit shows both views and lets you pick in the menu ("Shown country"):
 
 If the two disagree for your VPN location, your provider is using a virtual location: your traffic really flows through another country, with the corresponding latency and jurisdiction.
 
+## What the IPv6 line tells you
+
+With a VPN connected, the IPv6 line is a diagnostic in itself — there are three possible states:
+
+1. **v6 shown, same country as v4** — the VPN tunnels both protocols. Ideal.
+2. **v6 shown as a separate orange block with a different country** — IPv6 is leaking outside the VPN tunnel: IPv6-capable websites see your real address and country.  Fix it by disabling IPv6 on the system or enabling IPv6 leak protection in the VPN client.
+3. **v6 hidden even though your network normally has IPv6** — the VPN client blocks IPv6 entirely instead of tunneling it (leak protection). Safe, though you lose IPv6 connectivity while connected.
+
+An unavailable protocol is always hidden, so if your network has no IPv6 at all, the v6 line simply never appears.
+
 ## Privacy
 
 The app makes HTTPS requests to Cloudflare's public trace endpoints (`https://1.1.1.1/cdn-cgi/trace` and the IPv6 equivalent) to learn the external IPs, and to `https://ipwho.is/<ip>` (with `https://api.country.is/<ip>` as a fallback) to geolocate them — cached per IP, so it is only called when the address actually changes. Nothing else: no accounts, no API keys, no analytics, no data stored or sent anywhere.
