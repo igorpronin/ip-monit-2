@@ -1,8 +1,18 @@
 # IPMonit
 
+<img src="docs/icon.png" width="96" align="right" alt="IPMonit icon">
+
 A tiny macOS menu bar utility that always shows **which country you access the internet from** — your external IP address and the country flag of your internet exit point (e.g. your VPN server).
 
 Made for one simple purpose: a permanent, glanceable reminder of where your traffic exits, so you never forget your VPN is off (or on, or connected to the wrong country).
+
+## What it looks like
+
+| Normal | Country mismatch — possible VPN leak | No internet |
+|:---:|:---:|:---:|
+| <img src="docs/screenshot-normal.png" width="258" alt="Floating window: flag, country, IPv4 and IPv6"> | <img src="docs/screenshot-mismatch.png" width="258" alt="Floating window: IPv6 exits from a different country, highlighted orange"> | <img src="docs/screenshot-offline.png" width="192" alt="Floating window: no internet connection"> |
+
+The semi-transparent floating window over a desktop; the same info lives in the menu bar dropdown. IP addresses on the screenshots are fake documentation addresses (RFC 5737 / RFC 3849) — screenshots are rendered by `scripts/make-screenshots.sh`, real data never leaves the machine.
 
 ## Features
 
