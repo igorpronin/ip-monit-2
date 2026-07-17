@@ -18,6 +18,10 @@ struct ContentView: View {
                 Button(l10n.t(.copyIPv6)) { copy(monitor.v6?.ip) }
                     .disabled(monitor.v6 == nil)
                 Divider()
+                Toggle(l10n.t(.compactWindow), isOn: Binding(
+                    get: { monitor.compact },
+                    set: { monitor.compact = $0 }
+                ))
                 Button(l10n.t(.hideWindow)) {
                     (NSApp.delegate as? AppDelegate)?.setPanelVisible(false)
                 }
@@ -89,29 +93,60 @@ struct ContentView: View {
             )
     }
 
+    @ViewBuilder
     private func block(flag: String, country: String, lines: [(String, String)], tint: Color = .white) -> some View {
-        HStack(spacing: 6) {
-            VStack(spacing: 1) {
-                sourceBadge
-                Text(flag)
-                    .font(.system(size: 15))
-            }
+        if monitor.compact {
+            // Минимизированный вид: бейдж и флаг в строку перед страной, IPv6 подрезан.
             VStack(alignment: .leading, spacing: 0) {
-                Text(country)
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(tint)
+                HStack(spacing: 3) {
+                    sourceBadge
+                    Text(flag)
+                        .font(.system(size: 11))
+                    Text(country)
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundStyle(tint)
+                }
                 ForEach(lines, id: \.0) { label, ip in
                     HStack(spacing: 3) {
                         Text(label)
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.system(size: 7, weight: .bold))
                             .foregroundStyle(tint.opacity(0.5))
-                        Text(ip)
-                            .font(.system(size: 9, design: .monospaced))
+                        Text(Self.shortened(ip))
+                            .font(.system(size: 8, design: .monospaced))
                             .foregroundStyle(tint.opacity(0.85))
                     }
                 }
             }
+        } else {
+            HStack(spacing: 6) {
+                VStack(spacing: 1) {
+                    sourceBadge
+                    Text(flag)
+                        .font(.system(size: 15))
+                }
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(country)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(tint)
+                    ForEach(lines, id: \.0) { label, ip in
+                        HStack(spacing: 3) {
+                            Text(label)
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(tint.opacity(0.5))
+                            Text(ip)
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(tint.opacity(0.85))
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    /// Длинный IPv6 → начало…конец; IPv4 и короткие адреса не трогаем.
+    private static func shortened(_ ip: String) -> String {
+        guard ip.count > 21 else { return ip }
+        return "\(ip.prefix(9))…\(ip.suffix(9))"
     }
 
     private func copy(_ value: String?) {

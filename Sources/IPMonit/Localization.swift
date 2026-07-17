@@ -6,6 +6,7 @@ enum L10nKey: String {
     case floatingWindow, launchAtLogin, about, quit, hideWindow, language
     case aboutText, openProjectFolder, loginItemError
     case geoModeMenu, geoModeVirtual, geoModePhysical
+    case compactWindow
 }
 
 @MainActor
@@ -61,6 +62,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "Shown country",
             .geoModeVirtual: "Virtual — MaxMind (as websites see it)",
             .geoModePhysical: "Physical — Cloudflare (actual server location)",
+            .compactWindow: "Compact window",
         ],
         "ru": [
             .detecting: "Определяю…",
@@ -80,6 +82,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "Отображаемая страна",
             .geoModeVirtual: "Виртуальная — MaxMind (как видят сайты)",
             .geoModePhysical: "Физическая — Cloudflare (реальное расположение сервера)",
+            .compactWindow: "Компактное окошко",
         ],
         "es": [
             .detecting: "Detectando…",
@@ -99,6 +102,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "País mostrado",
             .geoModeVirtual: "Virtual — MaxMind (como lo ven los sitios web)",
             .geoModePhysical: "Físico — Cloudflare (ubicación real del servidor)",
+            .compactWindow: "Ventana compacta",
         ],
         "de": [
             .detecting: "Ermittle…",
@@ -118,6 +122,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "Angezeigtes Land",
             .geoModeVirtual: "Virtuell — MaxMind (wie Websites es sehen)",
             .geoModePhysical: "Physisch — Cloudflare (tatsächlicher Serverstandort)",
+            .compactWindow: "Kompaktes Fenster",
         ],
         "fr": [
             .detecting: "Détection…",
@@ -137,6 +142,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "Pays affiché",
             .geoModeVirtual: "Virtuel — MaxMind (vu par les sites web)",
             .geoModePhysical: "Physique — Cloudflare (emplacement réel du serveur)",
+            .compactWindow: "Fenêtre compacte",
         ],
         "it": [
             .detecting: "Rilevamento…",
@@ -156,6 +162,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "Paese mostrato",
             .geoModeVirtual: "Virtuale — MaxMind (come lo vedono i siti)",
             .geoModePhysical: "Fisico — Cloudflare (posizione reale del server)",
+            .compactWindow: "Finestra compatta",
         ],
         "pt": [
             .detecting: "Detectando…",
@@ -175,6 +182,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "País exibido",
             .geoModeVirtual: "Virtual — MaxMind (como os sites veem)",
             .geoModePhysical: "Físico — Cloudflare (localização real do servidor)",
+            .compactWindow: "Janela compacta",
         ],
         "zh": [
             .detecting: "正在检测…",
@@ -194,6 +202,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "显示的国家",
             .geoModeVirtual: "虚拟 — MaxMind（网站所见）",
             .geoModePhysical: "物理 — Cloudflare（服务器实际位置）",
+            .compactWindow: "紧凑窗口",
         ],
         "ja": [
             .detecting: "検出中…",
@@ -213,6 +222,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "表示する国",
             .geoModeVirtual: "仮想 — MaxMind（ウェブサイトから見た国）",
             .geoModePhysical: "物理 — Cloudflare（サーバーの実際の所在地）",
+            .compactWindow: "コンパクト表示",
         ],
         "ko": [
             .detecting: "확인 중…",
@@ -232,6 +242,7 @@ final class L10n: ObservableObject {
             .geoModeMenu: "표시 국가",
             .geoModeVirtual: "가상 — MaxMind (웹사이트에 보이는 국가)",
             .geoModePhysical: "실제 — Cloudflare (서버의 물리적 위치)",
+            .compactWindow: "컴팩트 창",
         ],
     ]
 }

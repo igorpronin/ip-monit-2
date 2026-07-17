@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: FloatingPanel!
     private var statusItem: NSStatusItem!
     private var panelMenuItem: NSMenuItem!
+    private var compactMenuItem: NSMenuItem!
     private var loginMenuItem: NSMenuItem!
     private var ip4MenuItem: NSMenuItem!
     private var ip6MenuItem: NSMenuItem!
@@ -180,6 +181,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panelMenuItem.state = panelVisible ? .on : .off
         menu.addItem(panelMenuItem)
 
+        compactMenuItem = NSMenuItem(title: l10n.t(.compactWindow), action: #selector(toggleCompact), keyEquivalent: "")
+        compactMenuItem.target = self
+        compactMenuItem.state = monitor.compact ? .on : .off
+        menu.addItem(compactMenuItem)
+
         loginMenuItem = NSMenuItem(title: l10n.t(.launchAtLogin), action: #selector(toggleLoginItem), keyEquivalent: "")
         loginMenuItem.target = self
         loginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -249,6 +255,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func togglePanel() { setPanelVisible(!panelVisible) }
 
+    @objc private func toggleCompact() {
+        monitor.compact.toggle()
+        compactMenuItem?.state = monitor.compact ? .on : .off
+    }
+
     @objc private func selectLanguage(_ sender: NSMenuItem) {
         guard let code = sender.representedObject as? String else { return }
         L10n.shared.lang = code
@@ -310,8 +321,9 @@ extension AppDelegate: NSWindowDelegate {
 }
 
 extension AppDelegate: NSMenuDelegate {
-    // Автозапуск могли переключить в Системных настройках — актуализируем галочку.
+    // Состояния могли поменять извне (Системные настройки, контекстное меню окошка).
     func menuWillOpen(_ menu: NSMenu) {
         loginMenuItem?.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        compactMenuItem?.state = monitor.compact ? .on : .off
     }
 }

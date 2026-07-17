@@ -24,6 +24,9 @@ final class IPMonitor: ObservableObject {
     @Published var geoMode: GeoMode {
         didSet { UserDefaults.standard.set(geoMode.rawValue, forKey: "GeoMode") }
     }
+    @Published var compact: Bool {
+        didSet { UserDefaults.standard.set(compact, forKey: "CompactWindow") }
+    }
 
     private let session: URLSession
     private var timer: Timer?
@@ -44,6 +47,7 @@ final class IPMonitor: ObservableObject {
 
     init() {
         geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
+        compact = UserDefaults.standard.bool(forKey: "CompactWindow")
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
         cfg.timeoutIntervalForResource = 8

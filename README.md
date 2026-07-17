@@ -20,6 +20,7 @@ The semi-transparent floating window over a desktop; the same info lives in the 
 
 - **Menu bar flag** — the flag of your current exit country lives in the menu bar. The dropdown shows full IPv4/IPv6 details.
 - **Optional floating window** — a small semi-transparent pill that stays on top of all windows, on every desktop, even over fullscreen apps. Drag it anywhere; the position is remembered.
+- **Compact mode** — an even smaller window: the flag and source badge go inline with the country name, and IPv6 is shortened to its first and last characters. Toggle it in the menu ("Compact window").
 - **Near-realtime** — endpoints are polled every 3 seconds, and network changes (VPN on/off, Wi-Fi switch) trigger an immediate refresh via `NWPathMonitor`.
 - **IPv4 and IPv6 checked independently** — via Cloudflare (`1.1.1.1` and `2606:4700:4700::1111`), so you see exactly what dual-stack services see. A protocol that isn't available is simply hidden.
 - **Virtual vs physical country** — a menu option ("Shown country") switches between the country as registered in geo databases (MaxMind — what websites see) and the physical server location (Cloudflare's estimate). The active source is shown as a small badge (MM = MaxMind / CF = Cloudflare) above the flag in the floating window. See [Virtual VPN locations](#virtual-vpn-locations-registered-vs-physical-country) below.
