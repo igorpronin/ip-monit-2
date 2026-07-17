@@ -1,0 +1,9 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Local app builds (public zip lives in dist/)
+build/
+
+# macOS
+.DS_Store
