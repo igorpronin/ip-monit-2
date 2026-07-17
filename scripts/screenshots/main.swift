@@ -9,11 +9,12 @@ MainActor.assumeIsolated {
     try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
     L10n.shared.lang = "en"
 
-    @MainActor func renderPanel(v4: StackResult?, v6: StackResult?, offline: Bool, out: String) {
+    @MainActor func renderPanel(v4: StackResult?, v6: StackResult?, offline: Bool, compact: Bool = false, out: String) {
         let monitor = IPMonitor()
         monitor.v4 = v4
         monitor.v6 = v6
         monitor.offline = offline
+        monitor.compact = compact
 
         let host = NSHostingView(rootView: ContentView(monitor: monitor))
         let size = host.fittingSize
@@ -65,6 +66,7 @@ MainActor.assumeIsolated {
     let v6leak = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", registeredCountry: "DE", physicalCountry: "DE")
 
     renderPanel(v4: v4, v6: v6, offline: false, out: "screenshot-normal.png")
+    renderPanel(v4: v4, v6: v6, offline: false, compact: true, out: "screenshot-compact.png")
     renderPanel(v4: v4, v6: v6leak, offline: false, out: "screenshot-mismatch.png")
     renderPanel(v4: nil, v6: nil, offline: true, out: "screenshot-offline.png")
 }
