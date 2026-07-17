@@ -14,6 +14,10 @@ Made for one simple purpose: a permanent, glanceable reminder of where your traf
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshot-normal.png" width="258" alt="Floating window: flag, country, IPv4 and IPv6"> | <img src="docs/screenshot-compact.png" width="168" alt="Compact window: badge and flag inline, IPv6 shortened"> | <img src="docs/screenshot-mismatch.png" width="258" alt="Floating window: IPv6 exits from a different country, highlighted orange"> | <img src="docs/screenshot-offline.png" width="192" alt="Floating window: no internet connection"> |
 
+The indicator — a glowing strip pinned to the top of the screen, color-coding the current exit country (here: a country with a green rule matched; it stays dim gray when no rule matches):
+
+<img src="docs/screenshot-indicator.png" width="640" alt="Indicator strip glowing green for a matched country rule">
+
 The semi-transparent floating window over a desktop; the same info lives in the menu bar dropdown. IP addresses on the screenshots are fake documentation addresses (RFC 5737 / RFC 3849) — screenshots are rendered by `scripts/make-screenshots.sh`, real data never leaves the machine.
 
 ## Features

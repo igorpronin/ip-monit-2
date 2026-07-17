@@ -9,14 +9,9 @@ MainActor.assumeIsolated {
     try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
     L10n.shared.lang = "en"
 
-    @MainActor func renderPanel(v4: StackResult?, v6: StackResult?, offline: Bool, compact: Bool = false, out: String) {
-        let monitor = IPMonitor()
-        monitor.v4 = v4
-        monitor.v6 = v6
-        monitor.offline = offline
-        monitor.compact = compact
-
-        let host = NSHostingView(rootView: ContentView(monitor: monitor))
+    // Композиция вью на градиентном "обое", чтобы была видна полупрозрачность
+    @MainActor func render<V: View>(_ view: V, out: String) {
+        let host = NSHostingView(rootView: view)
         let size = host.fittingSize
         host.frame = NSRect(origin: .zero, size: size)
         let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
@@ -35,7 +30,6 @@ MainActor.assumeIsolated {
         let panelImage = NSImage(size: size)
         panelImage.addRepresentation(panelRep)
 
-        // Композиция на градиентном "обое", чтобы была видна полупрозрачность
         let pad: CGFloat = 22
         let bgSize = NSSize(width: size.width + pad * 2, height: size.height + pad * 2)
         let rep = NSBitmapImageRep(
@@ -60,6 +54,15 @@ MainActor.assumeIsolated {
         print("written: \(outDir)/\(out)")
     }
 
+    @MainActor func renderPanel(v4: StackResult?, v6: StackResult?, offline: Bool, compact: Bool = false, out: String) {
+        let monitor = IPMonitor()
+        monitor.v4 = v4
+        monitor.v6 = v6
+        monitor.offline = offline
+        monitor.compact = compact
+        render(ContentView(monitor: monitor), out: out)
+    }
+
     // Документационные адреса (RFC 5737 / RFC 3849) — не настоящие IP
     let v4 = StackResult(ip: "203.0.113.42", registeredCountry: "NL", physicalCountry: "NL")
     let v6 = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", registeredCountry: "NL", physicalCountry: "NL")
@@ -69,4 +72,10 @@ MainActor.assumeIsolated {
     renderPanel(v4: v4, v6: v6, offline: false, compact: true, out: "screenshot-compact.png")
     renderPanel(v4: v4, v6: v6leak, offline: false, out: "screenshot-mismatch.png")
     renderPanel(v4: nil, v6: nil, offline: true, out: "screenshot-offline.png")
+
+    // Индикатор: правило совпало — светится цветом правила
+    let indicatorMonitor = IPMonitor()
+    indicatorMonitor.v4 = v4
+    indicatorMonitor.indicatorRules = ["NL": "green"]
+    render(IndicatorView(monitor: indicatorMonitor), out: "screenshot-indicator.png")
 }

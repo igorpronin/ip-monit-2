@@ -8,6 +8,7 @@ swiftc \
     Sources/IPMonit/ContentView.swift \
     Sources/IPMonit/AppDelegate.swift \
     Sources/IPMonit/Localization.swift \
+    Sources/IPMonit/Indicator.swift \
     scripts/screenshots/main.swift \
     -o /tmp/ipmonit-render-screens
 
