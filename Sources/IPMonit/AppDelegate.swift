@@ -120,13 +120,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.contentViewController = host
         panel.setContentSize(host.view.fittingSize)
 
-        if !panel.setFrameUsingName("IPMonitIndicator") {
+        // Системный автосейв фрейма портит позиции, выступающие за край экрана
+        // (дефолт индикатора — 40% выше кромки), поэтому храним фрейм вручную.
+        UserDefaults.standard.removeObject(forKey: "NSWindow Frame IPMonitIndicator")
+        if let saved = UserDefaults.standard.string(forKey: "IndicatorFrame") {
+            panel.setFrameOrigin(NSRectFromString(saved).origin)
+        } else {
             panel.setFrameOrigin(Self.defaultIndicatorOrigin(for: panel))
         }
-        panel.setFrameAutosaveName("IPMonitIndicator")
+        panel.delegate = self
         panel.onDoubleClick = { [weak self] in self?.showMenu(under: self?.indicatorPanel) }
 
         indicatorPanel = panel
+    }
+
+    private func saveIndicatorFrame() {
+        UserDefaults.standard.set(NSStringFromRect(indicatorPanel.frame), forKey: "IndicatorFrame")
     }
 
     // По умолчанию полоска по центру у верхнего края, верхние 40% — за пределами экрана.
@@ -138,6 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func resetIndicatorPosition() {
         indicatorPanel.setFrameOrigin(Self.defaultIndicatorOrigin(for: indicatorPanel))
+        saveIndicatorFrame()
     }
 
     func setIndicatorVisible(_ visible: Bool) {
@@ -486,7 +496,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSWindowDelegate {
     func windowDidResize(_ notification: Notification) {
-        guard let panel else { return }
+        guard let window = notification.object as? NSWindow else { return }
+        if window === indicatorPanel {
+            saveIndicatorFrame()
+            return
+        }
+        guard window === panel, let panel = self.panel else { return }
         // При Right-выравнивании держим правый край на месте: окно растёт/сжимается влево.
         if monitor.alignRight, lastPanelFrame.width > 0, panel.frame.width != lastPanelFrame.width {
             panel.setFrameOrigin(NSPoint(
@@ -499,7 +514,12 @@ extension AppDelegate: NSWindowDelegate {
     }
 
     func windowDidMove(_ notification: Notification) {
-        lastPanelFrame = panel?.frame ?? lastPanelFrame
+        guard let window = notification.object as? NSWindow else { return }
+        if window === indicatorPanel {
+            saveIndicatorFrame()
+        } else if window === panel {
+            lastPanelFrame = panel.frame
+        }
     }
 }
 
