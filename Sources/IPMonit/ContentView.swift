@@ -73,10 +73,29 @@ struct ContentView: View {
         }
     }
 
+    // Бейдж источника геоданных: рисуем сами, без сторонних логотипов.
+    private var sourceBadge: some View {
+        let physical = monitor.geoMode == .physicalLocation
+        return Text(physical ? "CF" : "MaxMind")
+            .font(.system(size: 6, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 3)
+            .padding(.vertical, 1)
+            .background(
+                physical
+                    ? Color(red: 0.96, green: 0.51, blue: 0.12)   // оранжевый Cloudflare
+                    : Color(red: 0.00, green: 0.37, blue: 0.64),  // синий MaxMind
+                in: Capsule()
+            )
+    }
+
     private func block(flag: String, country: String, lines: [(String, String)], tint: Color = .white) -> some View {
         HStack(spacing: 6) {
-            Text(flag)
-                .font(.system(size: 15))
+            VStack(spacing: 1) {
+                sourceBadge
+                Text(flag)
+                    .font(.system(size: 15))
+            }
             VStack(alignment: .leading, spacing: 0) {
                 Text(country)
                     .font(.system(size: 9, weight: .semibold))

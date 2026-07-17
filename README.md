@@ -22,7 +22,7 @@ The semi-transparent floating window over a desktop; the same info lives in the 
 - **Optional floating window** — a small semi-transparent pill that stays on top of all windows, on every desktop, even over fullscreen apps. Drag it anywhere; the position is remembered.
 - **Near-realtime** — endpoints are polled every 3 seconds, and network changes (VPN on/off, Wi-Fi switch) trigger an immediate refresh via `NWPathMonitor`.
 - **IPv4 and IPv6 checked independently** — via Cloudflare (`1.1.1.1` and `2606:4700:4700::1111`), so you see exactly what dual-stack services see. A protocol that isn't available is simply hidden.
-- **Virtual vs physical country** — a menu option ("Shown country") switches between the country as registered in geo databases (MaxMind — what websites see) and the physical server location (Cloudflare's estimate). See [Virtual VPN locations](#virtual-vpn-locations-registered-vs-physical-country) below.
+- **Virtual vs physical country** — a menu option ("Shown country") switches between the country as registered in geo databases (MaxMind — what websites see) and the physical server location (Cloudflare's estimate). The active source is shown as a small badge (MaxMind / CF) above the flag in the floating window. See [Virtual VPN locations](#virtual-vpn-locations-registered-vs-physical-country) below.
 - **VPN leak hint** — if the IPv4 and IPv6 countries don't match (a classic sign of one protocol leaking outside your VPN tunnel), the IPv6 block is shown separately with its own flag, highlighted orange, and the menu bar flag gets a ⚠️.
 - **Offline indicator** — when the internet is unreachable, the app says so instead of showing stale data.
 - **Launch at login** — toggle in the menu (uses the system `SMAppService`).
