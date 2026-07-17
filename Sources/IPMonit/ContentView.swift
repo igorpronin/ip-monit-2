@@ -76,7 +76,7 @@ struct ContentView: View {
     // Бейдж источника геоданных: рисуем сами, без сторонних логотипов.
     private var sourceBadge: some View {
         let physical = monitor.geoMode == .physicalLocation
-        return Text(physical ? "CF" : "MaxMind")
+        return Text(physical ? "CF" : "MM")
             .font(.system(size: 6, weight: .bold))
             .foregroundStyle(.white)
             .padding(.horizontal, 3)
