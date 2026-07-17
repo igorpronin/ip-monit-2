@@ -47,7 +47,7 @@ If the two disagree for your VPN location, your provider is using a virtual loca
 
 ## Privacy
 
-The app makes HTTPS requests to Cloudflare's public trace endpoints (`https://1.1.1.1/cdn-cgi/trace` and the IPv6 equivalent) to learn the external IPs, and to `https://api.country.is/<ip>` to geolocate them (cached per IP, so it is only called when the address actually changes). Nothing else: no accounts, no API keys, no analytics, no data stored or sent anywhere.
+The app makes HTTPS requests to Cloudflare's public trace endpoints (`https://1.1.1.1/cdn-cgi/trace` and the IPv6 equivalent) to learn the external IPs, and to `https://ipwho.is/<ip>` (with `https://api.country.is/<ip>` as a fallback) to geolocate them — cached per IP, so it is only called when the address actually changes. Nothing else: no accounts, no API keys, no analytics, no data stored or sent anywhere.
 
 ## Install (prebuilt)
 
@@ -86,6 +86,6 @@ open /Applications/IPMonit.app --args --mock-mismatch
 
 ## How it works
 
-- Two endpoints are queried in parallel: `https://1.1.1.1/cdn-cgi/trace` (the IP literal forces IPv4) and `https://[2606:4700:4700::1111]/cdn-cgi/trace` (forces IPv6). Each returns the caller's IP. The country for each IP is then resolved via `api.country.is` (MaxMind GeoLite2) with a per-IP cache; Cloudflare's `loc=` field is the fallback.
+- Two endpoints are queried in parallel: `https://1.1.1.1/cdn-cgi/trace` (the IP literal forces IPv4) and `https://[2606:4700:4700::1111]/cdn-cgi/trace` (forces IPv6). Each returns the caller's IP. The registered country for each IP is then resolved via `ipwho.is` (falling back to `api.country.is`), with a per-IP cache; Cloudflare's `loc=` field serves as the physical-location view and the last-resort fallback.
 - The window is a borderless, non-activating `NSPanel` at floating level hosting a SwiftUI view — clicking it never steals focus from your current app.
 - Country codes become flag emoji via Unicode regional indicators; country names come from the system `Locale` in the selected UI language.

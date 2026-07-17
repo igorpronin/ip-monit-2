@@ -173,17 +173,39 @@ final class IPMonitor: ObservableObject {
             return StackResult(ip: trace.ip, registeredCountry: cached, physicalCountry: trace.loc)
         }
 
-        struct GeoResponse: Decodable { let country: String }
-        if let url = URL(string: "https://api.country.is/\(trace.ip)"),
-           let (data, response) = try? await session.data(from: url),
-           (response as? HTTPURLResponse)?.statusCode == 200,
-           let geo = try? JSONDecoder().decode(GeoResponse.self, from: data),
-           geo.country.count == 2 {
-            geoCache[trace.ip] = geo.country
-            return StackResult(ip: trace.ip, registeredCountry: geo.country, physicalCountry: trace.loc)
+        if let cc = await lookupRegisteredCountry(trace.ip) {
+            geoCache[trace.ip] = cc
+            return StackResult(ip: trace.ip, registeredCountry: cc, physicalCountry: trace.loc)
         }
 
         // Фолбэк на оценку Cloudflare; не кэшируем, чтобы повторить попытку на следующем опросе.
         return StackResult(ip: trace.ip, registeredCountry: trace.loc, physicalCountry: trace.loc)
+    }
+
+    /// Зарегистрированная страна IP: сначала ipwho.is (совпадает с тем, что показывают
+    /// сайты, включая свежие виртуальные локации VPN), затем api.country.is как запасной.
+    private func lookupRegisteredCountry(_ ip: String) async -> String? {
+        struct WhoResponse: Decodable {
+            let success: Bool?
+            let country_code: String?
+        }
+        if let url = URL(string: "https://ipwho.is/\(ip)?fields=success,country_code"),
+           let (data, response) = try? await session.data(from: url),
+           (response as? HTTPURLResponse)?.statusCode == 200,
+           let who = try? JSONDecoder().decode(WhoResponse.self, from: data),
+           who.success != false,
+           let cc = who.country_code, cc.count == 2 {
+            return cc
+        }
+
+        struct GeoResponse: Decodable { let country: String }
+        if let url = URL(string: "https://api.country.is/\(ip)"),
+           let (data, response) = try? await session.data(from: url),
+           (response as? HTTPURLResponse)?.statusCode == 200,
+           let geo = try? JSONDecoder().decode(GeoResponse.self, from: data),
+           geo.country.count == 2 {
+            return geo.country
+        }
+        return nil
     }
 }
