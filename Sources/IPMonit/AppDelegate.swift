@@ -29,6 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: FloatingPanel!
     private var statusItem: NSStatusItem!
     private var panelMenuItem: NSMenuItem!
+    private var onTopMenuItem: NSMenuItem!
     private var compactMenuItem: NSMenuItem!
     private var alignLeftMenuItem: NSMenuItem!
     private var alignRightMenuItem: NSMenuItem!
@@ -47,6 +48,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelVisible: Bool {
         get { UserDefaults.standard.object(forKey: "ShowFloatingPanel") as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: "ShowFloatingPanel") }
+    }
+
+    private var panelOnTop: Bool {
+        get { UserDefaults.standard.object(forKey: "PanelOnTop") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "PanelOnTop") }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -99,7 +105,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        panel.level = .statusBar
+        panel.level = panelOnTop ? .statusBar : .normal
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
@@ -171,7 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
-        panel.level = .floating
+        panel.level = panelOnTop ? .floating : .normal
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
@@ -220,6 +226,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             panel.orderOut(nil)
         }
         panelMenuItem?.state = visible ? .on : .off
+    }
+
+    // "Поверх всех окон" наследуют оба окна: и окошко, и индикатор.
+    func setPanelOnTop(_ onTop: Bool) {
+        panelOnTop = onTop
+        panel.level = onTop ? .floating : .normal
+        indicatorPanel.level = onTop ? .statusBar : .normal
+        if panelVisible { panel.orderFrontRegardless() }
+        if monitor.indicatorEnabled { indicatorPanel.orderFrontRegardless() }
+        onTopMenuItem?.state = onTop ? .on : .off
+    }
+
+    var isPanelOnTop: Bool { panelOnTop }
+
+    @objc private func toggleOnTop() {
+        setPanelOnTop(!panelOnTop)
     }
 
     // Контент меняет размер (IPv4/IPv6/офлайн) — не даём окну уходить за край экрана.
@@ -282,10 +304,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         geoItem.submenu = geoMenu
         menu.addItem(geoItem)
 
-        panelMenuItem = NSMenuItem(title: l10n.t(.floatingWindow), action: #selector(togglePanel), keyEquivalent: "")
+        panelMenuItem = NSMenuItem(title: l10n.t(.showWindow), action: #selector(togglePanel), keyEquivalent: "")
         panelMenuItem.target = self
         panelMenuItem.state = panelVisible ? .on : .off
         menu.addItem(panelMenuItem)
+
+        onTopMenuItem = NSMenuItem(title: l10n.t(.floatingWindow), action: #selector(toggleOnTop), keyEquivalent: "")
+        onTopMenuItem.target = self
+        onTopMenuItem.state = panelOnTop ? .on : .off
+        menu.addItem(onTopMenuItem)
 
         compactMenuItem = NSMenuItem(title: l10n.t(.compactWindow), action: #selector(toggleCompact), keyEquivalent: "")
         compactMenuItem.target = self
@@ -484,5 +511,7 @@ extension AppDelegate: NSMenuDelegate {
         alignLeftMenuItem?.state = monitor.alignRight ? .off : .on
         alignRightMenuItem?.state = monitor.alignRight ? .on : .off
         indicatorMenuItem?.state = monitor.indicatorEnabled ? .on : .off
+        onTopMenuItem?.state = panelOnTop ? .on : .off
+        panelMenuItem?.state = panelVisible ? .on : .off
     }
 }

@@ -18,6 +18,10 @@ struct ContentView: View {
                 Button(l10n.t(.copyIPv6)) { copy(monitor.v6?.ip) }
                     .disabled(monitor.v6 == nil)
                 Divider()
+                Toggle(l10n.t(.floatingWindow), isOn: Binding(
+                    get: { (NSApp.delegate as? AppDelegate)?.isPanelOnTop ?? true },
+                    set: { (NSApp.delegate as? AppDelegate)?.setPanelOnTop($0) }
+                ))
                 Toggle(l10n.t(.compactWindow), isOn: Binding(
                     get: { monitor.compact },
                     set: { monitor.compact = $0 }
