@@ -8,8 +8,20 @@ let projectFolder = "/Users/proninigor/Projects/ip-monit-2"
 #endif
 
 final class FloatingPanel: NSPanel {
+    var onDoubleClick: (() -> Void)?
+
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
+
+    // Двойной клик по окошку открывает меню приложения — на случай, если иконка
+    // в меню-баре скрыта из-за нехватки места.
+    override func mouseDown(with event: NSEvent) {
+        if event.clickCount == 2 {
+            onDoubleClick?()
+            return
+        }
+        super.mouseDown(with: event)
+    }
 }
 
 @MainActor
@@ -101,9 +113,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         panel.setFrameAutosaveName("IPMonitPanel")
         panel.delegate = self
+        panel.onDoubleClick = { [weak self] in self?.showMenuFromWindow() }
 
         self.panel = panel
         clampPanelToScreen()
+    }
+
+    /// Показывает меню приложения под окошком (дубль меню из трея).
+    func showMenuFromWindow() {
+        guard let view = panel.contentView, let menu = statusItem?.menu else { return }
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: view)
     }
 
     func setPanelVisible(_ visible: Bool) {

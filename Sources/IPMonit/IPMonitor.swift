@@ -28,11 +28,12 @@ final class IPMonitor: ObservableObject {
         didSet { UserDefaults.standard.set(compact, forKey: "CompactWindow") }
     }
 
-    private let session: URLSession
+    private var session: URLSession
     private var timer: Timer?
     private let pathMonitor = NWPathMonitor()
     private var inFlight = false
     private var lastFetch: Date = .distantPast
+    private var lastSessionReset: Date = .distantPast
 
     // IP-литералы форсируют версию протокола: 1.1.1.1 — только IPv4,
     // 2606:4700:4700::1111 — только IPv6. Оба — Cloudflare DNS с валидным сертификатом.
@@ -48,11 +49,26 @@ final class IPMonitor: ObservableObject {
     init() {
         geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
         compact = UserDefaults.standard.bool(forKey: "CompactWindow")
+        session = Self.makeSession()
+        lastSessionReset = Date()
+    }
+
+    private static func makeSession() -> URLSession {
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
         cfg.timeoutIntervalForResource = 8
         cfg.requestCachePolicy = .reloadIgnoringLocalCacheData
-        session = URLSession(configuration: cfg)
+        return URLSession(configuration: cfg)
+    }
+
+    // Сессия держит keep-alive сокеты к Cloudflare, а постоянный опрос не даёт им
+    // закрыться. При поднятии VPN старый сокет может продолжать жить через физический
+    // интерфейс — и Cloudflare бесконечно видит старый IP. Поэтому при смене сетевого
+    // пути (и раз в минуту для страховки) сбрасываем пул соединений.
+    private func resetSession() {
+        session.finishTasksAndInvalidate()
+        session = Self.makeSession()
+        lastSessionReset = Date()
     }
 
     /// Основной результат для флага/страны: v4 приоритетнее.
@@ -91,7 +107,10 @@ final class IPMonitor: ObservableObject {
         }
 
         pathMonitor.pathUpdateHandler = { [weak self] _ in
-            Task { @MainActor in self?.refresh(force: true) }
+            Task { @MainActor in
+                self?.resetSession()
+                self?.refresh(force: true)
+            }
         }
         pathMonitor.start(queue: .global(qos: .utility))
 
@@ -104,6 +123,7 @@ final class IPMonitor: ObservableObject {
     func refresh(force: Bool = false) {
         if inFlight { return }
         if !force && Date().timeIntervalSince(lastFetch) < 1.0 { return }
+        if Date().timeIntervalSince(lastSessionReset) > 60 { resetSession() }
         inFlight = true
         lastFetch = Date()
         Task {
