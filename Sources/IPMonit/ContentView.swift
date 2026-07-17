@@ -41,27 +41,30 @@ struct ContentView: View {
             }
         } else if monitor.countryMismatch, let v4 = monitor.v4, let v6 = monitor.v6 {
             // Страны не совпали: IPv6 — отдельным блоком со своей страной, ниже, через разделитель.
+            let cc4 = monitor.country(of: v4)
+            let cc6 = monitor.country(of: v6)
             VStack(alignment: .leading, spacing: 3) {
                 block(
-                    flag: IPMonitor.flagEmoji(v4.countryCode),
-                    country: l10n.countryName(v4.countryCode),
+                    flag: IPMonitor.flagEmoji(cc4),
+                    country: l10n.countryName(cc4),
                     lines: [("v4", v4.ip)]
                 )
                 Rectangle()
                     .fill(.white.opacity(0.25))
                     .frame(height: 0.5)
                 block(
-                    flag: IPMonitor.flagEmoji(v6.countryCode),
-                    country: l10n.countryName(v6.countryCode),
+                    flag: IPMonitor.flagEmoji(cc6),
+                    country: l10n.countryName(cc6),
                     lines: [("v6", v6.ip)],
                     tint: .orange
                 )
             }
         } else if let primary = monitor.primary {
             // Один смысловой блок; недоступный протокол не показывается вовсе.
+            let cc = monitor.country(of: primary)
             block(
-                flag: IPMonitor.flagEmoji(primary.countryCode),
-                country: l10n.countryName(primary.countryCode),
+                flag: IPMonitor.flagEmoji(cc),
+                country: l10n.countryName(cc),
                 lines: [("v4", monitor.v4?.ip), ("v6", monitor.v6?.ip)]
                     .compactMap { label, ip in ip.map { (label, $0) } }
             )

@@ -60,9 +60,9 @@ MainActor.assumeIsolated {
     }
 
     // Документационные адреса (RFC 5737 / RFC 3849) — не настоящие IP
-    let v4 = StackResult(ip: "203.0.113.42", countryCode: "NL")
-    let v6 = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", countryCode: "NL")
-    let v6leak = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", countryCode: "DE")
+    let v4 = StackResult(ip: "203.0.113.42", registeredCountry: "NL", physicalCountry: "NL")
+    let v6 = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", registeredCountry: "NL", physicalCountry: "NL")
+    let v6leak = StackResult(ip: "2001:db8:85a3::8a2e:370:7334", registeredCountry: "DE", physicalCountry: "DE")
 
     renderPanel(v4: v4, v6: v6, offline: false, out: "screenshot-normal.png")
     renderPanel(v4: v4, v6: v6leak, offline: false, out: "screenshot-mismatch.png")

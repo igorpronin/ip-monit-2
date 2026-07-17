@@ -5,6 +5,7 @@ enum L10nKey: String {
     case detecting, noInternet, refreshNow, copyIPv4, copyIPv6
     case floatingWindow, launchAtLogin, about, quit, hideWindow, language
     case aboutText, openProjectFolder, loginItemError
+    case geoModeMenu, geoModeVirtual, geoModePhysical
 }
 
 @MainActor
@@ -57,6 +58,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Open project folder",
             .loginItemError: "Failed to change login item",
             .aboutText: "Shows your external IP address and the country of your internet exit point (VPN), so you can always see where you access the internet from.",
+            .geoModeMenu: "Shown country",
+            .geoModeVirtual: "Virtual — MaxMind (as websites see it)",
+            .geoModePhysical: "Physical — Cloudflare (actual server location)",
         ],
         "ru": [
             .detecting: "Определяю…",
@@ -73,6 +77,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Открыть папку проекта",
             .loginItemError: "Не удалось изменить автозапуск",
             .aboutText: "Показывает внешний IP-адрес и страну точки выхода в интернет (VPN), чтобы всегда было видно, откуда осуществляется доступ в сеть.",
+            .geoModeMenu: "Отображаемая страна",
+            .geoModeVirtual: "Виртуальная — MaxMind (как видят сайты)",
+            .geoModePhysical: "Физическая — Cloudflare (реальное расположение сервера)",
         ],
         "es": [
             .detecting: "Detectando…",
@@ -89,6 +96,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Abrir carpeta del proyecto",
             .loginItemError: "No se pudo cambiar el inicio automático",
             .aboutText: "Muestra la dirección IP externa y el país del punto de salida a internet (VPN), para que siempre veas desde dónde accedes a internet.",
+            .geoModeMenu: "País mostrado",
+            .geoModeVirtual: "Virtual — MaxMind (como lo ven los sitios web)",
+            .geoModePhysical: "Físico — Cloudflare (ubicación real del servidor)",
         ],
         "de": [
             .detecting: "Ermittle…",
@@ -105,6 +115,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Projektordner öffnen",
             .loginItemError: "Autostart konnte nicht geändert werden",
             .aboutText: "Zeigt die externe IP-Adresse und das Land des Internet-Austrittspunkts (VPN), damit immer sichtbar ist, von wo aus auf das Internet zugegriffen wird.",
+            .geoModeMenu: "Angezeigtes Land",
+            .geoModeVirtual: "Virtuell — MaxMind (wie Websites es sehen)",
+            .geoModePhysical: "Physisch — Cloudflare (tatsächlicher Serverstandort)",
         ],
         "fr": [
             .detecting: "Détection…",
@@ -121,6 +134,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Ouvrir le dossier du projet",
             .loginItemError: "Impossible de modifier le démarrage automatique",
             .aboutText: "Affiche l'adresse IP externe et le pays du point de sortie internet (VPN), pour toujours voir d'où vous accédez à internet.",
+            .geoModeMenu: "Pays affiché",
+            .geoModeVirtual: "Virtuel — MaxMind (vu par les sites web)",
+            .geoModePhysical: "Physique — Cloudflare (emplacement réel du serveur)",
         ],
         "it": [
             .detecting: "Rilevamento…",
@@ -137,6 +153,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Apri cartella del progetto",
             .loginItemError: "Impossibile modificare l'avvio automatico",
             .aboutText: "Mostra l'indirizzo IP esterno e il paese del punto di uscita internet (VPN), per vedere sempre da dove accedi a internet.",
+            .geoModeMenu: "Paese mostrato",
+            .geoModeVirtual: "Virtuale — MaxMind (come lo vedono i siti)",
+            .geoModePhysical: "Fisico — Cloudflare (posizione reale del server)",
         ],
         "pt": [
             .detecting: "Detectando…",
@@ -153,6 +172,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "Abrir pasta do projeto",
             .loginItemError: "Não foi possível alterar a inicialização automática",
             .aboutText: "Mostra o endereço IP externo e o país do ponto de saída da internet (VPN), para sempre ver de onde você acessa a internet.",
+            .geoModeMenu: "País exibido",
+            .geoModeVirtual: "Virtual — MaxMind (como os sites veem)",
+            .geoModePhysical: "Físico — Cloudflare (localização real do servidor)",
         ],
         "zh": [
             .detecting: "正在检测…",
@@ -169,6 +191,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "打开项目文件夹",
             .loginItemError: "无法更改登录启动项",
             .aboutText: "显示外部 IP 地址和互联网出口（VPN）所在国家，让你随时了解自己从哪里访问互联网。",
+            .geoModeMenu: "显示的国家",
+            .geoModeVirtual: "虚拟 — MaxMind（网站所见）",
+            .geoModePhysical: "物理 — Cloudflare（服务器实际位置）",
         ],
         "ja": [
             .detecting: "検出中…",
@@ -185,6 +210,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "プロジェクトフォルダを開く",
             .loginItemError: "ログイン項目を変更できませんでした",
             .aboutText: "外部IPアドレスとインターネット出口（VPN）の国を表示し、どこからインターネットにアクセスしているかを常に確認できます。",
+            .geoModeMenu: "表示する国",
+            .geoModeVirtual: "仮想 — MaxMind（ウェブサイトから見た国）",
+            .geoModePhysical: "物理 — Cloudflare（サーバーの実際の所在地）",
         ],
         "ko": [
             .detecting: "확인 중…",
@@ -201,6 +229,9 @@ final class L10n: ObservableObject {
             .openProjectFolder: "프로젝트 폴더 열기",
             .loginItemError: "로그인 항목을 변경할 수 없습니다",
             .aboutText: "외부 IP 주소와 인터넷 출구(VPN) 국가를 표시하여 어디에서 인터넷에 접속하는지 항상 확인할 수 있습니다.",
+            .geoModeMenu: "표시 국가",
+            .geoModeVirtual: "가상 — MaxMind (웹사이트에 보이는 국가)",
+            .geoModePhysical: "실제 — Cloudflare (서버의 물리적 위치)",
         ],
     ]
 }

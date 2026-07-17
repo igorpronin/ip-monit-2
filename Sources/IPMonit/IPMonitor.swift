@@ -4,7 +4,16 @@ import Combine
 
 struct StackResult: Equatable {
     var ip: String
-    var countryCode: String
+    /// Страна из MaxMind-базы (api.country.is) — то, что видит большинство сайтов.
+    /// Для "виртуальных" локаций VPN — заявленная провайдером страна.
+    var registeredCountry: String
+    /// Оценка Cloudflare по измерениям — фактическое расположение сервера.
+    var physicalCountry: String
+}
+
+enum GeoMode: String {
+    case virtualLocation = "virtual"
+    case physicalLocation = "physical"
 }
 
 @MainActor
@@ -12,6 +21,9 @@ final class IPMonitor: ObservableObject {
     @Published var v4: StackResult?
     @Published var v6: StackResult?
     @Published var offline: Bool = false
+    @Published var geoMode: GeoMode {
+        didSet { UserDefaults.standard.set(geoMode.rawValue, forKey: "GeoMode") }
+    }
 
     private let session: URLSession
     private var timer: Timer?
@@ -31,6 +43,7 @@ final class IPMonitor: ObservableObject {
     private var geoCache: [String: String] = [:]
 
     init() {
+        geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
         cfg.timeoutIntervalForResource = 8
@@ -41,13 +54,18 @@ final class IPMonitor: ObservableObject {
     /// Основной результат для флага/страны: v4 приоритетнее.
     var primary: StackResult? { v4 ?? v6 }
 
-    var flag: String { Self.flagEmoji(primary?.countryCode) }
-    var flag6: String { Self.flagEmoji(v6?.countryCode) }
+    /// Страна с учётом выбранного режима отображения.
+    func country(of result: StackResult) -> String {
+        geoMode == .virtualLocation ? result.registeredCountry : result.physicalCountry
+    }
+
+    var flag: String { Self.flagEmoji(primary.map { country(of: $0) }) }
+    var flag6: String { Self.flagEmoji(v6.map { country(of: $0) }) }
 
     /// Страны v4 и v6 различаются — признак утечки одного из протоколов мимо VPN.
     var countryMismatch: Bool {
-        guard let a = v4?.countryCode, let b = v6?.countryCode else { return false }
-        return a != b
+        guard let a = v4, let b = v6 else { return false }
+        return country(of: a) != country(of: b)
     }
 
     static func flagEmoji(_ cc: String?) -> String {
@@ -63,8 +81,8 @@ final class IPMonitor: ObservableObject {
     func start() {
         // Мок для визуальной проверки раскладки "страны не совпали": сеть не опрашивается.
         if ProcessInfo.processInfo.arguments.contains("--mock-mismatch") {
-            v4 = StackResult(ip: "46.102.25.0", countryCode: "PT")
-            v6 = StackResult(ip: "2a12:26c0:5483:3a00:d524:5be5:fa55:fbb7", countryCode: "RU")
+            v4 = StackResult(ip: "46.102.25.0", registeredCountry: "PT", physicalCountry: "PT")
+            v6 = StackResult(ip: "2a12:26c0:5483:3a00:d524:5be5:fa55:fbb7", registeredCountry: "RU", physicalCountry: "FR")
             return
         }
 
@@ -128,7 +146,7 @@ final class IPMonitor: ObservableObject {
     private func resolveCountry(_ trace: (ip: String, loc: String)?) async -> StackResult? {
         guard let trace else { return nil }
         if let cached = geoCache[trace.ip] {
-            return StackResult(ip: trace.ip, countryCode: cached)
+            return StackResult(ip: trace.ip, registeredCountry: cached, physicalCountry: trace.loc)
         }
 
         struct GeoResponse: Decodable { let country: String }
@@ -138,10 +156,10 @@ final class IPMonitor: ObservableObject {
            let geo = try? JSONDecoder().decode(GeoResponse.self, from: data),
            geo.country.count == 2 {
             geoCache[trace.ip] = geo.country
-            return StackResult(ip: trace.ip, countryCode: geo.country)
+            return StackResult(ip: trace.ip, registeredCountry: geo.country, physicalCountry: trace.loc)
         }
 
         // Фолбэк на оценку Cloudflare; не кэшируем, чтобы повторить попытку на следующем опросе.
-        return StackResult(ip: trace.ip, countryCode: trace.loc)
+        return StackResult(ip: trace.ip, registeredCountry: trace.loc, physicalCountry: trace.loc)
     }
 }

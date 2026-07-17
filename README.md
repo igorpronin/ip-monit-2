@@ -20,11 +20,27 @@ The semi-transparent floating window over a desktop; the same info lives in the 
 - **Optional floating window** — a small semi-transparent pill that stays on top of all windows, on every desktop, even over fullscreen apps. Drag it anywhere; the position is remembered.
 - **Near-realtime** — endpoints are polled every 3 seconds, and network changes (VPN on/off, Wi-Fi switch) trigger an immediate refresh via `NWPathMonitor`.
 - **IPv4 and IPv6 checked independently** — via Cloudflare (`1.1.1.1` and `2606:4700:4700::1111`), so you see exactly what dual-stack services see. A protocol that isn't available is simply hidden.
-- **VPN-friendly geolocation** — the country comes from a MaxMind-based database (`api.country.is`), the same kind most "what is my IP" sites use. This matters for VPN "virtual locations": Cloudflare's own database reports the physical server location (often France or the Netherlands), while MaxMind respects the country the provider registered. Cloudflare's estimate is used as a fallback.
+- **Virtual vs physical country** — a menu option ("Shown country") switches between the country as registered in geo databases (MaxMind — what websites see) and the physical server location (Cloudflare's estimate). See [Virtual VPN locations](#virtual-vpn-locations-registered-vs-physical-country) below.
 - **VPN leak hint** — if the IPv4 and IPv6 countries don't match (a classic sign of one protocol leaking outside your VPN tunnel), the IPv6 block is shown separately with its own flag, highlighted orange, and the menu bar flag gets a ⚠️.
 - **Offline indicator** — when the internet is unreachable, the app says so instead of showing stale data.
 - **Launch at login** — toggle in the menu (uses the system `SMAppService`).
 - **10 languages** — English (default), Русский, Español, Deutsch, Français, Italiano, Português, 中文, 日本語, 한국어. Switchable from the menu; country names are localized too.
+
+## Virtual VPN locations: registered vs physical country
+
+The "country" of an IP address is a database record, not a physical fact — and for VPN exit IPs the records often disagree with geography. Many VPN locations (especially exotic ones like Afghanistan or Belarus) are **virtual**: the server physically sits in a datacenter in France or the Netherlands, while the provider registers the IP range to the advertised country in geo databases like MaxMind. Hosting real hardware in such countries is slow, risky, or legally complicated — so providers fake the location on paper, and major ones even mark these servers as "virtual" in their apps.
+
+Which country you "are in" then depends on who is looking:
+
+- **Websites and "what is my IP" services** mostly use MaxMind-family databases → they see the registered (virtual) country. This is why virtual locations work for geo-unblocking.
+- **Measurement-based databases** (like Cloudflare's, built on routing and latency data) → they see where the server physically is.
+
+IPMonit shows both views and lets you pick in the menu ("Shown country"):
+
+- **Virtual — MaxMind** (default): the country websites will think you are in.
+- **Physical — Cloudflare**: the country where the exit server actually lives.
+
+If the two disagree for your VPN location, your provider is using a virtual location: your traffic really flows through another country, with the corresponding latency and jurisdiction.
 
 ## Privacy
 

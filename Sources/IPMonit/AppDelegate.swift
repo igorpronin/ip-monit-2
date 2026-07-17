@@ -52,6 +52,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
+        monitor.$geoMode
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.rebuildMenu()
+                self?.updateStatusItem()
+            }
+            .store(in: &cancellables)
+
         if panelVisible {
             panel.orderFrontRegardless()
         }
@@ -149,6 +158,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
+        let geoItem = NSMenuItem(title: l10n.t(.geoModeMenu), action: nil, keyEquivalent: "")
+        let geoMenu = NSMenu()
+        geoMenu.autoenablesItems = false
+        let geoModes: [(GeoMode, L10nKey)] = [
+            (.virtualLocation, .geoModeVirtual),
+            (.physicalLocation, .geoModePhysical),
+        ]
+        for (mode, key) in geoModes {
+            let item = NSMenuItem(title: l10n.t(key), action: #selector(selectGeoMode(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = mode.rawValue
+            item.state = monitor.geoMode == mode ? .on : .off
+            geoMenu.addItem(item)
+        }
+        geoItem.submenu = geoMenu
+        menu.addItem(geoItem)
+
         panelMenuItem = NSMenuItem(title: l10n.t(.floatingWindow), action: #selector(togglePanel), keyEquivalent: "")
         panelMenuItem.target = self
         panelMenuItem.state = panelVisible ? .on : .off
@@ -198,8 +224,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             statusItem?.button?.toolTip = nil
         }
 
-        let line4 = monitor.v4.map { "IPv4: \($0.ip) — \(l10n.countryName($0.countryCode))" } ?? "IPv4: —"
-        let line6 = monitor.v6.map { "IPv6: \($0.ip) — \(l10n.countryName($0.countryCode))" } ?? "IPv6: —"
+        let line4 = monitor.v4.map { "IPv4: \($0.ip) — \(l10n.countryName(monitor.country(of: $0)))" } ?? "IPv4: —"
+        let line6 = monitor.v6.map { "IPv6: \($0.ip) — \(l10n.countryName(monitor.country(of: $0)))" } ?? "IPv6: —"
         if !monitor.offline {
             statusItem?.button?.toolTip = "\(line4)\n\(line6)"
         }
@@ -226,6 +252,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func selectLanguage(_ sender: NSMenuItem) {
         guard let code = sender.representedObject as? String else { return }
         L10n.shared.lang = code
+    }
+
+    @objc private func selectGeoMode(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String,
+              let mode = GeoMode(rawValue: raw) else { return }
+        monitor.geoMode = mode
     }
 
     @objc private func toggleLoginItem() {
