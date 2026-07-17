@@ -30,7 +30,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var panelMenuItem: NSMenuItem!
     private var compactMenuItem: NSMenuItem!
+    private var alignLeftMenuItem: NSMenuItem!
+    private var alignRightMenuItem: NSMenuItem!
     private var loginMenuItem: NSMenuItem!
+    private var lastPanelFrame: NSRect = .zero
     private var ip4MenuItem: NSMenuItem!
     private var ip6MenuItem: NSMenuItem!
     private var copy4MenuItem: NSMenuItem!
@@ -117,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         self.panel = panel
         clampPanelToScreen()
+        lastPanelFrame = panel.frame
     }
 
     /// Показывает меню приложения под окошком (дубль меню из трея).
@@ -205,6 +209,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         compactMenuItem.state = monitor.compact ? .on : .off
         menu.addItem(compactMenuItem)
 
+        let alignItem = NSMenuItem(title: l10n.t(.alignMenu), action: nil, keyEquivalent: "")
+        let alignMenu = NSMenu()
+        alignMenu.autoenablesItems = false
+        alignLeftMenuItem = NSMenuItem(title: l10n.t(.alignLeft), action: #selector(selectAlignLeft), keyEquivalent: "")
+        alignLeftMenuItem.target = self
+        alignLeftMenuItem.state = monitor.alignRight ? .off : .on
+        alignMenu.addItem(alignLeftMenuItem)
+        alignRightMenuItem = NSMenuItem(title: l10n.t(.alignRight), action: #selector(selectAlignRight), keyEquivalent: "")
+        alignRightMenuItem.target = self
+        alignRightMenuItem.state = monitor.alignRight ? .on : .off
+        alignMenu.addItem(alignRightMenuItem)
+        alignItem.submenu = alignMenu
+        menu.addItem(alignItem)
+
         loginMenuItem = NSMenuItem(title: l10n.t(.launchAtLogin), action: #selector(toggleLoginItem), keyEquivalent: "")
         loginMenuItem.target = self
         loginMenuItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -279,6 +297,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         compactMenuItem?.state = monitor.compact ? .on : .off
     }
 
+    @objc private func selectAlignLeft() { setAlignRight(false) }
+
+    @objc private func selectAlignRight() { setAlignRight(true) }
+
+    private func setAlignRight(_ value: Bool) {
+        monitor.alignRight = value
+        alignLeftMenuItem?.state = value ? .off : .on
+        alignRightMenuItem?.state = value ? .on : .off
+    }
+
     @objc private func selectLanguage(_ sender: NSMenuItem) {
         guard let code = sender.representedObject as? String else { return }
         L10n.shared.lang = code
@@ -335,7 +363,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSWindowDelegate {
     func windowDidResize(_ notification: Notification) {
+        guard let panel else { return }
+        // При Right-выравнивании держим правый край на месте: окно растёт/сжимается влево.
+        if monitor.alignRight, lastPanelFrame.width > 0, panel.frame.width != lastPanelFrame.width {
+            panel.setFrameOrigin(NSPoint(
+                x: lastPanelFrame.maxX - panel.frame.width,
+                y: panel.frame.origin.y
+            ))
+        }
         clampPanelToScreen()
+        lastPanelFrame = panel.frame
+    }
+
+    func windowDidMove(_ notification: Notification) {
+        lastPanelFrame = panel?.frame ?? lastPanelFrame
     }
 }
 
@@ -344,5 +385,7 @@ extension AppDelegate: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         loginMenuItem?.state = SMAppService.mainApp.status == .enabled ? .on : .off
         compactMenuItem?.state = monitor.compact ? .on : .off
+        alignLeftMenuItem?.state = monitor.alignRight ? .off : .on
+        alignRightMenuItem?.state = monitor.alignRight ? .on : .off
     }
 }

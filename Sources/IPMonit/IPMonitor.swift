@@ -27,6 +27,9 @@ final class IPMonitor: ObservableObject {
     @Published var compact: Bool {
         didSet { UserDefaults.standard.set(compact, forKey: "CompactWindow") }
     }
+    @Published var alignRight: Bool {
+        didSet { UserDefaults.standard.set(alignRight, forKey: "AlignRight") }
+    }
 
     private var session: URLSession
     private var timer: Timer?
@@ -49,6 +52,7 @@ final class IPMonitor: ObservableObject {
     init() {
         geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
         compact = UserDefaults.standard.bool(forKey: "CompactWindow")
+        alignRight = UserDefaults.standard.bool(forKey: "AlignRight")
         session = Self.makeSession()
         lastSessionReset = Date()
     }

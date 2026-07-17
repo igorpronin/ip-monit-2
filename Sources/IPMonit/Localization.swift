@@ -7,6 +7,7 @@ enum L10nKey: String {
     case aboutText, openProjectFolder, loginItemError
     case geoModeMenu, geoModeVirtual, geoModePhysical
     case compactWindow
+    case alignMenu, alignLeft, alignRight
 }
 
 @MainActor
@@ -63,6 +64,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtual — MaxMind (as websites see it)",
             .geoModePhysical: "Physical — Cloudflare (actual server location)",
             .compactWindow: "Compact window",
+            .alignMenu: "Alignment",
+            .alignLeft: "Left",
+            .alignRight: "Right",
         ],
         "ru": [
             .detecting: "Определяю…",
@@ -83,6 +87,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Виртуальная — MaxMind (как видят сайты)",
             .geoModePhysical: "Физическая — Cloudflare (реальное расположение сервера)",
             .compactWindow: "Компактное окошко",
+            .alignMenu: "Выравнивание",
+            .alignLeft: "Слева",
+            .alignRight: "Справа",
         ],
         "es": [
             .detecting: "Detectando…",
@@ -103,6 +110,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtual — MaxMind (como lo ven los sitios web)",
             .geoModePhysical: "Físico — Cloudflare (ubicación real del servidor)",
             .compactWindow: "Ventana compacta",
+            .alignMenu: "Alineación",
+            .alignLeft: "Izquierda",
+            .alignRight: "Derecha",
         ],
         "de": [
             .detecting: "Ermittle…",
@@ -123,6 +133,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtuell — MaxMind (wie Websites es sehen)",
             .geoModePhysical: "Physisch — Cloudflare (tatsächlicher Serverstandort)",
             .compactWindow: "Kompaktes Fenster",
+            .alignMenu: "Ausrichtung",
+            .alignLeft: "Links",
+            .alignRight: "Rechts",
         ],
         "fr": [
             .detecting: "Détection…",
@@ -143,6 +156,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtuel — MaxMind (vu par les sites web)",
             .geoModePhysical: "Physique — Cloudflare (emplacement réel du serveur)",
             .compactWindow: "Fenêtre compacte",
+            .alignMenu: "Alignement",
+            .alignLeft: "Gauche",
+            .alignRight: "Droite",
         ],
         "it": [
             .detecting: "Rilevamento…",
@@ -163,6 +179,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtuale — MaxMind (come lo vedono i siti)",
             .geoModePhysical: "Fisico — Cloudflare (posizione reale del server)",
             .compactWindow: "Finestra compatta",
+            .alignMenu: "Allineamento",
+            .alignLeft: "Sinistra",
+            .alignRight: "Destra",
         ],
         "pt": [
             .detecting: "Detectando…",
@@ -183,6 +202,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "Virtual — MaxMind (como os sites veem)",
             .geoModePhysical: "Físico — Cloudflare (localização real do servidor)",
             .compactWindow: "Janela compacta",
+            .alignMenu: "Alinhamento",
+            .alignLeft: "Esquerda",
+            .alignRight: "Direita",
         ],
         "zh": [
             .detecting: "正在检测…",
@@ -203,6 +225,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "虚拟 — MaxMind（网站所见）",
             .geoModePhysical: "物理 — Cloudflare（服务器实际位置）",
             .compactWindow: "紧凑窗口",
+            .alignMenu: "对齐",
+            .alignLeft: "左",
+            .alignRight: "右",
         ],
         "ja": [
             .detecting: "検出中…",
@@ -223,6 +248,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "仮想 — MaxMind（ウェブサイトから見た国）",
             .geoModePhysical: "物理 — Cloudflare（サーバーの実際の所在地）",
             .compactWindow: "コンパクト表示",
+            .alignMenu: "配置",
+            .alignLeft: "左",
+            .alignRight: "右",
         ],
         "ko": [
             .detecting: "확인 중…",
@@ -243,6 +271,9 @@ final class L10n: ObservableObject {
             .geoModeVirtual: "가상 — MaxMind (웹사이트에 보이는 국가)",
             .geoModePhysical: "실제 — Cloudflare (서버의 물리적 위치)",
             .compactWindow: "컴팩트 창",
+            .alignMenu: "정렬",
+            .alignLeft: "왼쪽",
+            .alignRight: "오른쪽",
         ],
     ]
 }

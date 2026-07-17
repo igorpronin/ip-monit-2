@@ -22,6 +22,16 @@ struct ContentView: View {
                     get: { monitor.compact },
                     set: { monitor.compact = $0 }
                 ))
+                Menu(l10n.t(.alignMenu)) {
+                    Toggle(l10n.t(.alignLeft), isOn: Binding(
+                        get: { !monitor.alignRight },
+                        set: { _ in monitor.alignRight = false }
+                    ))
+                    Toggle(l10n.t(.alignRight), isOn: Binding(
+                        get: { monitor.alignRight },
+                        set: { _ in monitor.alignRight = true }
+                    ))
+                }
                 Button(l10n.t(.hideWindow)) {
                     (NSApp.delegate as? AppDelegate)?.setPanelVisible(false)
                 }
@@ -47,7 +57,7 @@ struct ContentView: View {
             // Страны не совпали: IPv6 — отдельным блоком со своей страной, ниже, через разделитель.
             let cc4 = monitor.country(of: v4)
             let cc6 = monitor.country(of: v6)
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: monitor.alignRight ? .trailing : .leading, spacing: 3) {
                 block(
                     flag: IPMonitor.flagEmoji(cc4),
                     country: l10n.countryName(cc4),
@@ -95,9 +105,10 @@ struct ContentView: View {
 
     @ViewBuilder
     private func block(flag: String, country: String, lines: [(String, String)], tint: Color = .white) -> some View {
+        let textAlignment: HorizontalAlignment = monitor.alignRight ? .trailing : .leading
         if monitor.compact {
             // Минимизированный вид: бейдж и флаг в строку перед страной, IPv6 подрезан.
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: textAlignment, spacing: 0) {
                 HStack(spacing: 3) {
                     sourceBadge
                     Text(flag)
@@ -118,13 +129,12 @@ struct ContentView: View {
                 }
             }
         } else {
+            // Полный вид: колонка с бейджем и флагом — слева или справа от текста.
             HStack(spacing: 6) {
-                VStack(spacing: 1) {
-                    sourceBadge
-                    Text(flag)
-                        .font(.system(size: 15))
+                if !monitor.alignRight {
+                    flagColumn(flag)
                 }
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: textAlignment, spacing: 0) {
                     Text(country)
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(tint)
@@ -139,7 +149,18 @@ struct ContentView: View {
                         }
                     }
                 }
+                if monitor.alignRight {
+                    flagColumn(flag)
+                }
             }
+        }
+    }
+
+    private func flagColumn(_ flag: String) -> some View {
+        VStack(spacing: 1) {
+            sourceBadge
+            Text(flag)
+                .font(.system(size: 15))
         }
     }
 
