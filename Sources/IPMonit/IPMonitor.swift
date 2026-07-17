@@ -24,6 +24,12 @@ final class IPMonitor: ObservableObject {
     private static let v4URL = URL(string: "https://1.1.1.1/cdn-cgi/trace")!
     private static let v6URL = URL(string: "https://[2606:4700:4700::1111]/cdn-cgi/trace")!
 
+    // Страна по IP. Геобаза Cloudflare отражает физическое расположение сервера,
+    // а "виртуальные" локации VPN зарегистрированы только в MaxMind — поэтому страну
+    // берём из api.country.is (MaxMind GeoLite2), loc= Cloudflare остаётся фолбэком.
+    // Результат кэшируется по IP: сеть дёргается только при смене адреса.
+    private var geoCache: [String: String] = [:]
+
     init() {
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
@@ -87,18 +93,22 @@ final class IPMonitor: ObservableObject {
     private func fetch() async {
         async let r4 = fetchTrace(Self.v4URL)
         async let r6 = fetchTrace(Self.v6URL)
-        let (n4, n6) = await (r4, r6)
+        let (t4, t6) = await (r4, r6)
 
-        if n4 == nil && n6 == nil {
+        if t4 == nil && t6 == nil {
             offline = true
             return
         }
         offline = false
+
+        async let c4 = resolveCountry(t4)
+        async let c6 = resolveCountry(t6)
+        let (n4, n6) = await (c4, c6)
         if n4 != v4 { v4 = n4 }
         if n6 != v6 { v6 = n6 }
     }
 
-    private func fetchTrace(_ url: URL) async -> StackResult? {
+    private func fetchTrace(_ url: URL) async -> (ip: String, loc: String)? {
         do {
             let (data, _) = try await session.data(from: url)
             guard let text = String(data: data, encoding: .utf8) else { return nil }
@@ -109,9 +119,29 @@ final class IPMonitor: ObservableObject {
                 else if line.hasPrefix("loc=") { loc = String(line.dropFirst(4)) }
             }
             guard let ip, let loc else { return nil }
-            return StackResult(ip: ip, countryCode: loc)
+            return (ip, loc)
         } catch {
             return nil
         }
+    }
+
+    private func resolveCountry(_ trace: (ip: String, loc: String)?) async -> StackResult? {
+        guard let trace else { return nil }
+        if let cached = geoCache[trace.ip] {
+            return StackResult(ip: trace.ip, countryCode: cached)
+        }
+
+        struct GeoResponse: Decodable { let country: String }
+        if let url = URL(string: "https://api.country.is/\(trace.ip)"),
+           let (data, response) = try? await session.data(from: url),
+           (response as? HTTPURLResponse)?.statusCode == 200,
+           let geo = try? JSONDecoder().decode(GeoResponse.self, from: data),
+           geo.country.count == 2 {
+            geoCache[trace.ip] = geo.country
+            return StackResult(ip: trace.ip, countryCode: geo.country)
+        }
+
+        // Фолбэк на оценку Cloudflare; не кэшируем, чтобы повторить попытку на следующем опросе.
+        return StackResult(ip: trace.ip, countryCode: trace.loc)
     }
 }

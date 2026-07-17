@@ -20,6 +20,7 @@ The semi-transparent floating window over a desktop; the same info lives in the 
 - **Optional floating window** — a small semi-transparent pill that stays on top of all windows, on every desktop, even over fullscreen apps. Drag it anywhere; the position is remembered.
 - **Near-realtime** — endpoints are polled every 3 seconds, and network changes (VPN on/off, Wi-Fi switch) trigger an immediate refresh via `NWPathMonitor`.
 - **IPv4 and IPv6 checked independently** — via Cloudflare (`1.1.1.1` and `2606:4700:4700::1111`), so you see exactly what dual-stack services see. A protocol that isn't available is simply hidden.
+- **VPN-friendly geolocation** — the country comes from a MaxMind-based database (`api.country.is`), the same kind most "what is my IP" sites use. This matters for VPN "virtual locations": Cloudflare's own database reports the physical server location (often France or the Netherlands), while MaxMind respects the country the provider registered. Cloudflare's estimate is used as a fallback.
 - **VPN leak hint** — if the IPv4 and IPv6 countries don't match (a classic sign of one protocol leaking outside your VPN tunnel), the IPv6 block is shown separately with its own flag, highlighted orange, and the menu bar flag gets a ⚠️.
 - **Offline indicator** — when the internet is unreachable, the app says so instead of showing stale data.
 - **Launch at login** — toggle in the menu (uses the system `SMAppService`).
@@ -27,7 +28,7 @@ The semi-transparent floating window over a desktop; the same info lives in the 
 
 ## Privacy
 
-The app makes HTTPS requests to Cloudflare's public trace endpoints (`https://1.1.1.1/cdn-cgi/trace` and the IPv6 equivalent) and nothing else. No accounts, no API keys, no analytics, no data stored or sent anywhere.
+The app makes HTTPS requests to Cloudflare's public trace endpoints (`https://1.1.1.1/cdn-cgi/trace` and the IPv6 equivalent) to learn the external IPs, and to `https://api.country.is/<ip>` to geolocate them (cached per IP, so it is only called when the address actually changes). Nothing else: no accounts, no API keys, no analytics, no data stored or sent anywhere.
 
 ## Install (prebuilt)
 
@@ -66,6 +67,6 @@ open /Applications/IPMonit.app --args --mock-mismatch
 
 ## How it works
 
-- Two endpoints are queried in parallel: `https://1.1.1.1/cdn-cgi/trace` (the IP literal forces IPv4) and `https://[2606:4700:4700::1111]/cdn-cgi/trace` (forces IPv6). Each returns the caller's IP and a country code.
+- Two endpoints are queried in parallel: `https://1.1.1.1/cdn-cgi/trace` (the IP literal forces IPv4) and `https://[2606:4700:4700::1111]/cdn-cgi/trace` (forces IPv6). Each returns the caller's IP. The country for each IP is then resolved via `api.country.is` (MaxMind GeoLite2) with a per-IP cache; Cloudflare's `loc=` field is the fallback.
 - The window is a borderless, non-activating `NSPanel` at floating level hosting a SwiftUI view — clicking it never steals focus from your current app.
 - Country codes become flag emoji via Unicode regional indicators; country names come from the system `Locale` in the selected UI language.
