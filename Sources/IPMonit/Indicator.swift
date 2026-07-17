@@ -35,7 +35,7 @@ struct IndicatorView: View {
     private var activeColor: Color? {
         guard !monitor.offline,
               let primary = monitor.primary,
-              let name = monitor.indicatorRules[monitor.country(of: primary)] else { return nil }
+              let name = monitor.indicatorColorName(for: monitor.country(of: primary)) else { return nil }
         return IndicatorPalette.color(name)
     }
 }
@@ -56,26 +56,37 @@ struct IndicatorSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if !monitor.indicatorRules.isEmpty {
-                ForEach(
-                    monitor.indicatorRules.sorted { l10n.countryName($0.key) < l10n.countryName($1.key) },
-                    id: \.key
-                ) { cc, colorName in
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(IndicatorPalette.color(colorName))
-                            .frame(width: 10, height: 10)
-                        Text("\(IPMonitor.flagEmoji(cc)) \(l10n.countryName(cc))")
-                        Spacer()
-                        Button {
-                            monitor.indicatorRules.removeValue(forKey: cc)
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
+            // Правила сгруппированы по цвету; внутри группы — в порядке добавления.
+            ForEach(IndicatorPalette.all, id: \.name) { entry in
+                let group = monitor.indicatorRules.filter { $0.colorName == entry.name }
+                if !group.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(entry.color)
+                                .frame(width: 10, height: 10)
+                            Rectangle()
+                                .fill(entry.color.opacity(0.35))
+                                .frame(height: 1)
                         }
-                        .buttonStyle(.plain)
+                        ForEach(group, id: \.cc) { rule in
+                            HStack(spacing: 8) {
+                                Text("\(IPMonitor.flagEmoji(rule.cc)) \(l10n.countryName(rule.cc))")
+                                Spacer()
+                                Button {
+                                    monitor.indicatorRules.removeAll { $0.cc == rule.cc }
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.leading, 16)
+                        }
                     }
                 }
+            }
+            if !monitor.indicatorRules.isEmpty {
                 Divider()
             }
             HStack(spacing: 8) {
@@ -105,7 +116,10 @@ struct IndicatorSettingsView: View {
                 }
 
                 Button(l10n.t(.add)) {
-                    monitor.indicatorRules[selectedCountry] = selectedColor
+                    // Страна может быть только в одной группе: убираем прежнее правило,
+                    // новое встаёт в конец своей цветовой группы.
+                    monitor.indicatorRules.removeAll { $0.cc == selectedCountry }
+                    monitor.indicatorRules.append(IndicatorRule(cc: selectedCountry, colorName: selectedColor))
                 }
             }
         }

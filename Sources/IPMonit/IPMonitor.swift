@@ -16,6 +16,11 @@ enum GeoMode: String {
     case physicalLocation = "physical"
 }
 
+struct IndicatorRule: Equatable {
+    var cc: String
+    var colorName: String
+}
+
 @MainActor
 final class IPMonitor: ObservableObject {
     @Published var v4: StackResult?
@@ -33,9 +38,18 @@ final class IPMonitor: ObservableObject {
     @Published var indicatorEnabled: Bool {
         didSet { UserDefaults.standard.set(indicatorEnabled, forKey: "IndicatorEnabled") }
     }
-    /// Правила индикатора: код страны → имя цвета из IndicatorPalette.
-    @Published var indicatorRules: [String: String] {
-        didSet { UserDefaults.standard.set(indicatorRules, forKey: "IndicatorRules") }
+    /// Правила индикатора, упорядоченные: порядок добавления сохраняется внутри цветовой группы.
+    @Published var indicatorRules: [IndicatorRule] {
+        didSet {
+            UserDefaults.standard.set(
+                indicatorRules.map { ["cc": $0.cc, "color": $0.colorName] },
+                forKey: "IndicatorRules"
+            )
+        }
+    }
+
+    func indicatorColorName(for cc: String) -> String? {
+        indicatorRules.first { $0.cc == cc }?.colorName
     }
 
     private var session: URLSession
@@ -61,7 +75,21 @@ final class IPMonitor: ObservableObject {
         compact = UserDefaults.standard.bool(forKey: "CompactWindow")
         alignRight = UserDefaults.standard.bool(forKey: "AlignRight")
         indicatorEnabled = UserDefaults.standard.bool(forKey: "IndicatorEnabled")
-        indicatorRules = UserDefaults.standard.dictionary(forKey: "IndicatorRules") as? [String: String] ?? [:]
+        if let stored = UserDefaults.standard.array(forKey: "IndicatorRules") as? [[String: String]] {
+            indicatorRules = stored.compactMap { item in
+                guard let cc = item["cc"], let color = item["color"] else { return nil }
+                return IndicatorRule(cc: cc, colorName: color)
+            }
+        } else if let legacy = UserDefaults.standard.dictionary(forKey: "IndicatorRules") as? [String: String] {
+            // Миграция из старого формата (словарь без порядка): группируем по палитре.
+            indicatorRules = IndicatorPalette.all.flatMap { entry in
+                legacy.filter { $0.value == entry.name }.keys.sorted().map {
+                    IndicatorRule(cc: $0, colorName: entry.name)
+                }
+            }
+        } else {
+            indicatorRules = []
+        }
         session = Self.makeSession()
         lastSessionReset = Date()
     }
