@@ -2,6 +2,10 @@
 
 macOS menu bar utility (Swift Package, no Xcode project). `./build-app.sh` builds the public variant, `./build-app.sh -dev` builds the owner's local variant (extra About info via `DEV_BUILD` compile flag). The copy installed in `/Applications` must always be the `-dev` build.
 
+## README files
+
+`README.md` (English) and `README.ru.md` (Russian) are mirrors of each other. Any change to one MUST be applied to the other in the same commit. Both keep the language-switcher links (`**English** | [Русский](README.ru.md)` / `[English](README.md) | **Русский**`) at the top — do not remove them.
+
 ## Rebuilding the public build (dist/IPMonit.zip)
 
 The prebuilt app is committed to the repo. To keep the repository small, old zip versions must NOT accumulate in git history. Whenever you rebuild and re-publish `dist/IPMonit.zip`:

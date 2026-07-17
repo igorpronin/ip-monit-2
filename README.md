@@ -1,5 +1,7 @@
 # IPMonit
 
+**English** | [Русский](README.ru.md)
+
 <img src="docs/icon.png" width="96" align="right" alt="IPMonit icon">
 
 A tiny macOS menu bar utility that always shows **which country you access the internet from** — your external IP address and the country flag of your internet exit point (e.g. your VPN server).
