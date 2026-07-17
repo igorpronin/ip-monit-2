@@ -36,12 +36,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.title = "🏳️"
         rebuildMenu()
 
+        // @Published эмитит на willSet — обрабатываем на следующем тике main queue,
+        // когда значение уже записано, иначе читаем устаревшее состояние.
         monitor.$v4.combineLatest(monitor.$v6, monitor.$offline)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _, _, _ in self?.updateStatusItem() }
             .store(in: &cancellables)
 
         L10n.shared.$lang
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.rebuildMenu()
                 self?.updateStatusItem()
