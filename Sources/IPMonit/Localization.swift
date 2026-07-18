@@ -9,6 +9,7 @@ enum L10nKey: String {
     case compactWindow
     case alignMenu, alignLeft, alignRight
     case indicatorStrip, configureIndicator, resetIndicatorPosition, add
+    case hideIPs, reportBug
 }
 
 @MainActor
@@ -73,6 +74,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Configure indicator…",
             .resetIndicatorPosition: "Reset indicator position",
             .add: "Add",
+            .hideIPs: "Hide IP addresses",
+            .reportBug: "Report a bug",
         ],
         "ru": [
             .detecting: "Определяю…",
@@ -101,6 +104,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Настроить индикатор…",
             .resetIndicatorPosition: "Вернуть индикатор на место",
             .add: "Добавить",
+            .hideIPs: "Не показывать IP-адреса",
+            .reportBug: "Сообщить об ошибке",
         ],
         "es": [
             .detecting: "Detectando…",
@@ -129,6 +134,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Configurar indicador…",
             .resetIndicatorPosition: "Restablecer posición del indicador",
             .add: "Añadir",
+            .hideIPs: "Ocultar direcciones IP",
+            .reportBug: "Informar de un error",
         ],
         "de": [
             .detecting: "Ermittle…",
@@ -157,6 +164,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Indikator konfigurieren…",
             .resetIndicatorPosition: "Indikatorposition zurücksetzen",
             .add: "Hinzufügen",
+            .hideIPs: "IP-Adressen ausblenden",
+            .reportBug: "Fehler melden",
         ],
         "fr": [
             .detecting: "Détection…",
@@ -185,6 +194,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Configurer l'indicateur…",
             .resetIndicatorPosition: "Réinitialiser la position de l'indicateur",
             .add: "Ajouter",
+            .hideIPs: "Masquer les adresses IP",
+            .reportBug: "Signaler un bug",
         ],
         "it": [
             .detecting: "Rilevamento…",
@@ -213,6 +224,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Configura indicatore…",
             .resetIndicatorPosition: "Ripristina posizione dell'indicatore",
             .add: "Aggiungi",
+            .hideIPs: "Nascondi indirizzi IP",
+            .reportBug: "Segnala un errore",
         ],
         "pt": [
             .detecting: "Detectando…",
@@ -241,6 +254,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "Configurar indicador…",
             .resetIndicatorPosition: "Redefinir posição do indicador",
             .add: "Adicionar",
+            .hideIPs: "Ocultar endereços IP",
+            .reportBug: "Relatar um erro",
         ],
         "zh": [
             .detecting: "正在检测…",
@@ -269,6 +284,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "配置指示条…",
             .resetIndicatorPosition: "恢复指示条位置",
             .add: "添加",
+            .hideIPs: "隐藏 IP 地址",
+            .reportBug: "报告问题",
         ],
         "ja": [
             .detecting: "検出中…",
@@ -297,6 +314,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "インジケーターを設定…",
             .resetIndicatorPosition: "インジケーターの位置をリセット",
             .add: "追加",
+            .hideIPs: "IPアドレスを隠す",
+            .reportBug: "バグを報告",
         ],
         "ko": [
             .detecting: "확인 중…",
@@ -325,6 +344,8 @@ final class L10n: ObservableObject {
             .configureIndicator: "인디케이터 설정…",
             .resetIndicatorPosition: "인디케이터 위치 재설정",
             .add: "추가",
+            .hideIPs: "IP 주소 숨기기",
+            .reportBug: "버그 신고",
         ],
     ]
 }

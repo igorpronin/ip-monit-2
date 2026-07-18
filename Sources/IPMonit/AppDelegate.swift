@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelMenuItem: NSMenuItem!
     private var onTopMenuItem: NSMenuItem!
     private var compactMenuItem: NSMenuItem!
+    private var hideIPsMenuItem: NSMenuItem!
     private var alignLeftMenuItem: NSMenuItem!
     private var alignRightMenuItem: NSMenuItem!
     private var indicatorMenuItem: NSMenuItem!
@@ -329,6 +330,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         compactMenuItem.state = monitor.compact ? .on : .off
         menu.addItem(compactMenuItem)
 
+        hideIPsMenuItem = NSMenuItem(title: l10n.t(.hideIPs), action: #selector(toggleHideIPs), keyEquivalent: "")
+        hideIPsMenuItem.target = self
+        hideIPsMenuItem.state = monitor.hideIPs ? .on : .off
+        menu.addItem(hideIPsMenuItem)
+
         let alignItem = NSMenuItem(title: l10n.t(.alignMenu), action: nil, keyEquivalent: "")
         let alignMenu = NSMenu()
         alignMenu.autoenablesItems = false
@@ -430,6 +436,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         compactMenuItem?.state = monitor.compact ? .on : .off
     }
 
+    @objc private func toggleHideIPs() {
+        monitor.hideIPs.toggle()
+        hideIPsMenuItem?.state = monitor.hideIPs ? .on : .off
+    }
+
     @objc private func selectAlignLeft() { setAlignRight(false) }
 
     @objc private func selectAlignRight() { setAlignRight(true) }
@@ -476,20 +487,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func showAbout() {
         let l10n = L10n.shared
+        let issuesURL = URL(string: "https://github.com/igorpronin/ip-monit-2/issues")!
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = "IPMonit"
         alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: l10n.t(.reportBug))
         #if DEV_BUILD
         alert.informativeText = l10n.t(.aboutText) + "\n\n"
             + l10n.devSuffix().replacingOccurrences(of: "{path}", with: projectFolder)
         alert.addButton(withTitle: l10n.t(.openProjectFolder))
-        if alert.runModal() == .alertSecondButtonReturn {
-            NSWorkspace.shared.open(URL(fileURLWithPath: projectFolder))
-        }
         #else
         alert.informativeText = l10n.t(.aboutText)
-        alert.runModal()
+        #endif
+        let response = alert.runModal()
+        if response == .alertSecondButtonReturn {
+            NSWorkspace.shared.open(issuesURL)
+        }
+        #if DEV_BUILD
+        if response == .alertThirdButtonReturn {
+            NSWorkspace.shared.open(URL(fileURLWithPath: projectFolder))
+        }
         #endif
     }
 }
@@ -528,6 +546,7 @@ extension AppDelegate: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         loginMenuItem?.state = SMAppService.mainApp.status == .enabled ? .on : .off
         compactMenuItem?.state = monitor.compact ? .on : .off
+        hideIPsMenuItem?.state = monitor.hideIPs ? .on : .off
         alignLeftMenuItem?.state = monitor.alignRight ? .off : .on
         alignRightMenuItem?.state = monitor.alignRight ? .on : .off
         indicatorMenuItem?.state = monitor.indicatorEnabled ? .on : .off

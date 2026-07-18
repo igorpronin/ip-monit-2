@@ -35,6 +35,9 @@ final class IPMonitor: ObservableObject {
     @Published var alignRight: Bool {
         didSet { UserDefaults.standard.set(alignRight, forKey: "AlignRight") }
     }
+    @Published var hideIPs: Bool {
+        didSet { UserDefaults.standard.set(hideIPs, forKey: "HideIPAddresses") }
+    }
     @Published var indicatorEnabled: Bool {
         didSet { UserDefaults.standard.set(indicatorEnabled, forKey: "IndicatorEnabled") }
     }
@@ -74,6 +77,7 @@ final class IPMonitor: ObservableObject {
         geoMode = GeoMode(rawValue: UserDefaults.standard.string(forKey: "GeoMode") ?? "") ?? .virtualLocation
         compact = UserDefaults.standard.bool(forKey: "CompactWindow")
         alignRight = UserDefaults.standard.bool(forKey: "AlignRight")
+        hideIPs = UserDefaults.standard.bool(forKey: "HideIPAddresses")
         indicatorEnabled = UserDefaults.standard.bool(forKey: "IndicatorEnabled")
         if let stored = UserDefaults.standard.array(forKey: "IndicatorRules") as? [[String: String]] {
             indicatorRules = stored.compactMap { item in

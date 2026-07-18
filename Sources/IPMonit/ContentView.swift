@@ -26,6 +26,10 @@ struct ContentView: View {
                     get: { monitor.compact },
                     set: { monitor.compact = $0 }
                 ))
+                Toggle(l10n.t(.hideIPs), isOn: Binding(
+                    get: { monitor.hideIPs },
+                    set: { monitor.hideIPs = $0 }
+                ))
                 Menu(l10n.t(.alignMenu)) {
                     Toggle(l10n.t(.alignLeft), isOn: Binding(
                         get: { !monitor.alignRight },
@@ -57,6 +61,8 @@ struct ContentView: View {
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(.orange)
             }
+        } else if monitor.hideIPs {
+            hiddenIPsContent
         } else if monitor.countryMismatch, let v4 = monitor.v4, let v6 = monitor.v6 {
             // Страны не совпали: IPv6 — отдельным блоком со своей страной, ниже, через разделитель.
             let cc4 = monitor.country(of: v4)
@@ -88,6 +94,42 @@ struct ContentView: View {
             )
         } else {
             block(flag: "🏳️", country: l10n.t(.detecting), lines: [])
+        }
+    }
+
+    // Режим "без адресов": одна строка `MM {флаг} {страна} v4+v6`,
+    // две строки — если v4 и v6 выходят из разных стран.
+    @ViewBuilder
+    private var hiddenIPsContent: some View {
+        if monitor.countryMismatch, let v4 = monitor.v4, let v6 = monitor.v6 {
+            VStack(alignment: monitor.alignRight ? .trailing : .leading, spacing: 1) {
+                hiddenIPLine(cc: monitor.country(of: v4), protocols: "v4")
+                hiddenIPLine(cc: monitor.country(of: v6), protocols: "v6", tint: .orange)
+            }
+        } else if let primary = monitor.primary {
+            let protocols = [monitor.v4 != nil ? "v4" : nil, monitor.v6 != nil ? "v6" : nil]
+                .compactMap { $0 }
+                .joined(separator: "+")
+            hiddenIPLine(cc: monitor.country(of: primary), protocols: protocols)
+        } else {
+            hiddenIPLine(cc: nil, protocols: "")
+        }
+    }
+
+    private func hiddenIPLine(cc: String?, protocols: String, tint: Color = .white) -> some View {
+        let compact = monitor.compact
+        return HStack(spacing: compact ? 3 : 4) {
+            sourceBadge
+            Text(IPMonitor.flagEmoji(cc))
+                .font(.system(size: compact ? 11 : 14))
+            Text(cc != nil ? l10n.countryName(cc) : l10n.t(.detecting))
+                .font(.system(size: compact ? 8 : 9, weight: .semibold))
+                .foregroundStyle(tint)
+            if !protocols.isEmpty {
+                Text(protocols)
+                    .font(.system(size: compact ? 7 : 8, weight: .bold))
+                    .foregroundStyle(tint.opacity(0.55))
+            }
         }
     }
 
